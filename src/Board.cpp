@@ -4,6 +4,8 @@
 
 #include "Board.h"
 
+#include "Game.h"
+
 Board::Board()
 	: _pieces() {
 	// Init the black men on the top 3 rows
@@ -23,6 +25,46 @@ Board::Board()
 			}
 		}
 	}
+}
+
+Bitboard Board::getUnoccupied() const {
+	const Bitboard occupied = _pieces[WHITE][MAN] | _pieces[WHITE][KING] | _pieces[BLACK][MAN] | _pieces[BLACK][KING];
+	return ~occupied;
+}
+
+const Bitboard& Board::get(Color color, PieceType piece) const {
+	return _pieces[color][piece];
+}
+
+void Board::applyMove(Color player, Move move) {
+	const auto [src, dest, flag] = Game::decodeMove(move);
+
+	switch (flag) {
+		case QUIET:
+			setBit(_pieces[player][MAN], dest);
+			unsetBit(_pieces[player][MAN], src);
+			break;
+		case CAPTURE:
+			break;
+		case PROMOTION:
+			break;
+		case MULTIJUMP:
+			break;
+	}
+}
+
+void Board::printBitboard(const Bitboard& board) {
+	for (int row = 7; row >= 0; row--) {
+		std::cout << "  +---+---+---+---+---+---+---+---+\n";
+		std::cout << row + 1 << " ";
+		for (int col = 0; col < 8; col++) {
+			bool exists = board & (1ULL << Board::square(row, col));
+			std::cout << "| " << (exists ? "1 " : "  ");
+		}
+		std::cout << "|\n";
+	}
+	std::cout << "  +---+---+---+---+---+---+---+---+\n";
+	std::cout << "    A   B   C   D   E   F   G   H\n";
 }
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {

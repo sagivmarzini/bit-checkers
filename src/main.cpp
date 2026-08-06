@@ -21,7 +21,10 @@ int main() {
 		});
 
 		try {
-			game.makeMove(moveStr);
+			if (!game.makeMove(moveStr)) {
+				std::cout << "Illegal move. Try again.\n";
+				continue;
+			}
 		} catch (const InvalidMove& e) {
 			std::cerr << "Invalid move: " << e.what() << std::endl;
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));

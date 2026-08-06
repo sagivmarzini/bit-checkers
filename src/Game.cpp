@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include "InvalidMove.h"
+#include "MoveGenerator.h"
 
 Game::Game()
 	: _board() {
@@ -15,6 +16,30 @@ void Game::printBoard() const {
 }
 
 bool Game::makeMove(const std::string& move) {
+	validateMoveString(move);
+	Move moveRaw = moveStringToBinary(move);
+
+	const auto possibleMoves = MoveGenerator::generateMoves(_board, _nextToPlay);
+	for (const auto& possibleMove: possibleMoves) {
+		if ((possibleMove & 0xFFF) == moveRaw) {
+			_board.applyMove(_nextToPlay, possibleMove);
+			// _nextToPlay = (_nextToPlay == Board::WHITE) ? Board::BLACK : Board::WHITE;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+constexpr UnpackedMove Game::decodeMove(const Move move) {
+	return {
+		static_cast<uint8_t>(move & 0b0000000000111111),
+		static_cast<uint8_t>((move & 0b0000111111000000) >> 6),
+		static_cast<MoveFlag>((move & 0b1111000000000000) >> 12)
+	};
+}
+
+void Game::validateMoveString(const std::string& move) {
 	if (move.length() != 4) throw InvalidMove("Invalid move format (format: <from><to>, e.g. a3b4)");
 	if (move[0] < 'a' || move[0] > 'h' || move[2] < 'a' || move[2] > 'h')
 		throw InvalidMove("Must use files 'a' to 'h'");
@@ -22,4 +47,20 @@ bool Game::makeMove(const std::string& move) {
 		throw InvalidMove("Must use ranks 1 to 8");
 	if (move.substr(0, 2) == move.substr(2, 2))
 		throw InvalidMove("Source and destination squares must be different");
+}
+
+std::string Game::binaryMoveToString(const Move& move) {
+	const auto [src, dest, flag] = decodeMove(move);
+
+	std::string moveSrc = std::string(1, static_cast<char>(src % 8 + 'a')) + std::to_string(src / 8 + 1);
+	std::string moveDest = std::string(1, static_cast<char>(dest % 8 + 'a')) + std::to_string(dest / 8 + 1);
+
+	return moveSrc + moveDest;
+}
+
+Move Game::moveStringToBinary(const std::string& move) {
+	const int src = move[0] - 'a' + ((move[1] - '1') * Board::ROW);
+	const int dest = move[2] - 'a' + ((move[3] - '1') * Board::ROW);
+
+	return MoveGenerator::createMove(src, dest, MoveFlag::QUIET);
 }

@@ -10,4 +10,6 @@ add_executable(bit_checkers
         src/Game.cpp
         src/Game.h
         src/InvalidMove.h
+        src/MoveGenerator.cpp
+        src/MoveGenerator.h
 )
