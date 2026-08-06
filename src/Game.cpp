@@ -8,19 +8,28 @@
 #include "MoveGenerator.h"
 
 Game::Game()
-	: _board() {
+	: _currentPlayer(&_human) {
 }
 
-void Game::printBoard() const {
-	std::cout << _board;
+void Game::playTurn() {
+	std::cout << _board << "\n";
+
+	Move move = _currentPlayer->getMove(_board);
+	while (!makeMove(move)) {
+		std::cout << "Illegal move. Try again.\n";
+		move = _currentPlayer->getMove(_board);
+	}
 }
 
 bool Game::makeMove(const Move& move) {
-	const auto possibleMoves = MoveGenerator::generateMoves(_board, _nextToPlay);
+	const auto possibleMoves = MoveGenerator::generateMoves(_board, _currentPlayer->getColor());
 	for (const auto& possibleMove: possibleMoves) {
 		if ((possibleMove & 0xFFF) == move) {
-			_board.applyMove(_nextToPlay, possibleMove);
-			// _nextToPlay = (_nextToPlay == Board::WHITE) ? Board::BLACK : Board::WHITE;
+			_board.applyMove(_currentPlayer->getColor(), possibleMove);
+			// _currentPlayer->getColor() = (_currentPlayer->getColor() == Board::WHITE) ? Board::BLACK : Board::WHITE;
+			_currentPlayer = (_currentPlayer == &_human)
+				                 ? static_cast<IPlayer*>(&_computer)
+				                 : static_cast<IPlayer*>(&_human);
 			return true;
 		}
 	}

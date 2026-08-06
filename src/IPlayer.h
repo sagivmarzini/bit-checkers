@@ -9,15 +9,19 @@
 
 class IPlayer {
 public:
-	explicit IPlayer(Board::Color color) : color(color) {
+	explicit IPlayer(Board::Color color) : _color(color) {
 	}
 
 	virtual ~IPlayer() = default;
 
 	virtual Move getMove(const Board& board) = 0;
 
+	[[nodiscard]] Board::Color getColor() const {
+		return _color;
+	}
+
 protected:
-	Board::Color color;
+	Board::Color _color;
 };
 
 #endif //BIT_CHECKERS_IPLAYER_H

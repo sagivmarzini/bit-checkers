@@ -13,7 +13,6 @@ int main() {
 	Game game;
 
 	while (true) {
-		game.printBoard();
 		game.playTurn();
 	}
 

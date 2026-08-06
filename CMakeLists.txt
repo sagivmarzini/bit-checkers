@@ -15,4 +15,6 @@ add_executable(bit_checkers
         src/IPlayer.h
         src/HumanPlayer.cpp
         src/HumanPlayer.h
+        src/AiPlayer.cpp
+        src/AiPlayer.h
 )

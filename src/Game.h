@@ -4,14 +4,18 @@
 
 #ifndef BIT_CHECKERS_GAME_H
 #define BIT_CHECKERS_GAME_H
+#include "AiPlayer.h"
 #include "Board.h"
+#include "HumanPlayer.h"
 
+
+class IPlayer;
 
 class Game {
 public:
 	Game();
 
-	void printBoard() const;
+	void playTurn();
 
 	static void validateMoveString(const std::string& move);
 
@@ -24,10 +28,9 @@ public:
 
 private:
 	Board _board;
-	Board::Color _nextToPlay = Board::Color::WHITE;
-
-	// Throws InvalidMove exception if invalid
-
+	HumanPlayer _human;
+	AiPlayer _computer;
+	IPlayer *_currentPlayer;
 
 	static std::string binaryMoveToString(const Move& move);
 };
