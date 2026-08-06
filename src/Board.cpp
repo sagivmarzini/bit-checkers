@@ -27,7 +27,8 @@ Board::Board()
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {
 	for (int row = 7; row >= 0; row--) {
-		os << "+---+---+---+---+---+---+---+---+\n";
+		os << "  +---+---+---+---+---+---+---+---+\n";
+		os << row + 1 << " ";
 		for (int col = 0; col < 8; col++) {
 			bool isBlackMan = board._pieces[Board::BLACK][Board::MAN] & (1ULL << Board::square(row, col));
 			bool isWhiteMan = board._pieces[Board::WHITE][Board::MAN] & (1ULL << Board::square(row, col));
@@ -35,7 +36,8 @@ std::ostream& operator<<(std::ostream& os, const Board& board) {
 		}
 		os << "|\n";
 	}
-	os << "+---+---+---+---+---+---+---+---+\n";
+	os << "  +---+---+---+---+---+---+---+---+\n";
+	os << "    A   B   C   D   E   F   G   H\n";
 
 	return os;
 }

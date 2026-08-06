@@ -14,13 +14,13 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 
-private:
 	enum Color {
 		WHITE,
 		BLACK,
 		COLORS_SIZE
 	};
 
+private:
 	enum PieceType {
 		MAN,
 		KING,
