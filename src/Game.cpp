@@ -15,13 +15,10 @@ void Game::printBoard() const {
 	std::cout << _board;
 }
 
-bool Game::makeMove(const std::string& move) {
-	validateMoveString(move);
-	Move moveRaw = moveStringToBinary(move);
-
+bool Game::makeMove(const Move& move) {
 	const auto possibleMoves = MoveGenerator::generateMoves(_board, _nextToPlay);
 	for (const auto& possibleMove: possibleMoves) {
-		if ((possibleMove & 0xFFF) == moveRaw) {
+		if ((possibleMove & 0xFFF) == move) {
 			_board.applyMove(_nextToPlay, possibleMove);
 			// _nextToPlay = (_nextToPlay == Board::WHITE) ? Board::BLACK : Board::WHITE;
 			return true;

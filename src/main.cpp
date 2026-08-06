@@ -6,29 +6,15 @@
 
 #include "Board.h"
 #include "Game.h"
+#include "HumanPlayer.h"
 #include "InvalidMove.h"
 
 int main() {
 	Game game;
-	std::string moveStr;
 
 	while (true) {
 		game.printBoard();
-		std::cout << "\nEnter move (format: <from><to>, e.g. a3b4):\n> ";
-		std::cin >> moveStr;
-		std::transform(moveStr.begin(), moveStr.end(), moveStr.begin(), [](unsigned char c) {
-			return std::tolower(c);
-		});
-
-		try {
-			if (!game.makeMove(moveStr)) {
-				std::cout << "Illegal move. Try again.\n";
-				continue;
-			}
-		} catch (const InvalidMove& e) {
-			std::cerr << "Invalid move: " << e.what() << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		}
+		game.playTurn();
 	}
 
 	return 0;

@@ -13,22 +13,23 @@ public:
 
 	void printBoard() const;
 
-	// Parses a move in coordinate notation: <from><to> (e.g. a3b4)
-	bool makeMove(const std::string& move);
+	static void validateMoveString(const std::string& move);
+
+	// Takes a move in coordinate notation: <from><to> (e.g. a3b4)
+	bool makeMove(const Move& move);
 
 	static constexpr UnpackedMove decodeMove(Move move);
+
+	static Move moveStringToBinary(const std::string& move);
 
 private:
 	Board _board;
 	Board::Color _nextToPlay = Board::Color::WHITE;
 
 	// Throws InvalidMove exception if invalid
-	void validateMoveString(const std::string& move);
 
 
 	static std::string binaryMoveToString(const Move& move);
-
-	static Move moveStringToBinary(const std::string& move);
 };
 
 

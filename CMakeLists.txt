@@ -12,4 +12,7 @@ add_executable(bit_checkers
         src/InvalidMove.h
         src/MoveGenerator.cpp
         src/MoveGenerator.h
+        src/IPlayer.h
+        src/HumanPlayer.cpp
+        src/HumanPlayer.h
 )
