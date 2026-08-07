@@ -59,7 +59,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 
-	static constexpr Color getEnemyColor(const Color color);
+	static constexpr Color getEnemyColor(Color color);
 
 	static int getCapturedPosition(uint8_t src, uint8_t dest);
 
@@ -74,6 +74,8 @@ private:
 	static constexpr void setBit(Bitboard& board, int square);
 
 	static constexpr void unsetBit(Bitboard& board, int square);
+
+	static const char *pieceGlyph(const Board& board, int square, bool isBlackMan, bool isWhiteMan);
 };
 
 constexpr Board::Color Board::getEnemyColor(const Color color) {

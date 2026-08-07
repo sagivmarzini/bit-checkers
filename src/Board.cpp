@@ -89,34 +89,35 @@ int Board::getCapturedPosition(uint8_t src, uint8_t dest) {
 	return (src + dest) / 2;
 }
 
+const char *Board::pieceGlyph(const Board& board, int square, bool isBlackMan, bool isWhiteMan) {
+	const bool isLastDest = board._lastDestPos == square;
+	const bool isLastSrc = board._lastSrcPos == square;
+	const bool isLastCapture = board._lastCapturePos == square;
+
+	if (isBlackMan) return isLastDest ? "◉" : "●";
+	if (isWhiteMan) return isLastDest ? "◎" : "○";
+	if (isLastSrc) return ".";
+	if (isLastCapture) return "x";
+	return " ";
+}
+
+
 std::ostream& operator<<(std::ostream& os, const Board& board) {
-	for (int row = 7; row >= 0; row--) {
-		os << "  +---+---+---+---+---+---+---+---+\n";
-		os << row + 1 << " ";
-		for (int col = 0; col < 8; col++) {
-			bool isBlackMan = board._pieces[Board::BLACK][Board::MAN] & (1ULL << Board::square(row, col));
-			bool isWhiteMan = board._pieces[Board::WHITE][Board::MAN] & (1ULL << Board::square(row, col));
-			bool isLastSrc = board._lastSrcPos == row * Board::ROW + col;
-			bool isLastDest = board._lastDestPos == row * Board::ROW + col;
-			bool isLastCapture = board._lastCapturePos == row * Board::ROW + col;
-			os << "| " << (isBlackMan
-				               ? isLastDest
-					                 ? "◉"
-					                 : "●"
-				               : isWhiteMan
-					                 ? isLastDest
-						                   ? "◎"
-						                   : "○"
-					                 : isLastSrc
-						                   ? "."
-						                   : isLastCapture
-							                     ? "x"
-							                     : " ") << ' ';
+	constexpr const char *divider = "  +---+---+---+---+---+---+---+---+\n";
+
+	for (int row = 7; row >= 0; --row) {
+		os << divider << (row + 1) << ' ';
+
+		for (int col = 0; col < 8; ++col) {
+			const int sq = Board::square(row, col);
+			const bool isBlackMan = board._pieces[Board::BLACK][Board::MAN] & (1ULL << sq);
+			const bool isWhiteMan = board._pieces[Board::WHITE][Board::MAN] & (1ULL << sq);
+
+			os << "| " << Board::pieceGlyph(board, sq, isBlackMan, isWhiteMan) << ' ';
 		}
 		os << "|\n";
 	}
-	os << "  +---+---+---+---+---+---+---+---+\n";
-	os << "    A   B   C   D   E   F   G   H\n";
 
+	os << divider << "    A   B   C   D   E   F   G   H\n";
 	return os;
 }
