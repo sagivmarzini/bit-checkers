@@ -69,13 +69,21 @@ private:
 	uint8_t _lastDestPos = -1;
 	uint8_t _lastCapturePos = -1;
 
+	enum class PieceKind { None, BlackMan, BlackKing, WhiteMan, WhiteKing };
+
 	static constexpr int square(int row, int col);
 
 	static constexpr void setBit(Bitboard& board, int square);
 
 	static constexpr void unsetBit(Bitboard& board, int square);
 
-	static const char *pieceGlyph(const Board& board, int square, bool isBlackMan, bool isWhiteMan);
+	[[nodiscard]] PieceKind pieceAt(int square) const;
+
+	PieceType pieceTypeAt(int square);
+
+	static const char *glyphFor(Board::PieceKind kind, bool isLastDest);
+
+	static const char *emptySquareGlyph(const Board& board, int square);
 };
 
 constexpr Board::Color Board::getEnemyColor(const Color color) {

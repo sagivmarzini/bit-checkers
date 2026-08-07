@@ -9,6 +9,7 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, Board::Color 
 	const Bitboard empty = board.getUnoccupied();
 	const Bitboard enemies = board.getColorPieces(Board::getEnemyColor(color));
 	const Bitboard men = board.get(color, Board::MAN);
+	const Bitboard kings = board.get(color, Board::KING);
 
 	switch (color) {
 		case Board::WHITE:
@@ -24,6 +25,8 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, Board::Color 
 			addCapturesInDirection(moves, men, Mask::LeftDown, LeftDownOffset, empty, enemies);
 			break;
 	}
+
+	addKingQuietMoves(moves, kings, empty);
 
 	return moves;
 }
@@ -42,22 +45,39 @@ void MoveGenerator::addLandingsAsMoves(std::vector<unsigned short>& moves, Bitbo
 	}
 }
 
-void MoveGenerator::addQuietMovesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
-                                             const Mask& directionMask,
-                                             const int offset, const Bitboard& empty) {
+void MoveGenerator::addQuietMovesInDirection(std::vector<unsigned short>& moves, Bitboard sources,
+                                             Mask directionMask,
+                                             int offset, Bitboard empty) {
 	Bitboard landings = shift(sources & directionMask, offset) & empty;
 
 	addLandingsAsMoves(moves, landings, offset, QUIET);
 }
 
-void MoveGenerator::addCapturesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
-                                           const Mask& directionMask, const int offset, const Bitboard& empty,
-                                           const Bitboard& enemies) {
+void MoveGenerator::addCapturesInDirection(std::vector<unsigned short>& moves, Bitboard sources,
+                                           Mask directionMask, int offset, Bitboard empty,
+                                           Bitboard enemies) {
 	// Check for enemies in the first jump, and nothing at the second jump
 	Bitboard landings = shift(sources & directionMask, offset) & enemies;
 	landings = shift(landings & directionMask, offset) & empty;
 
 	addLandingsAsMoves(moves, landings, offset * 2, CAPTURE);
+}
+
+void MoveGenerator::addKingQuietMoves(std::vector<Move>& moves, Bitboard kings, Bitboard empty) {
+	addKingSlideMovesInDirection(moves, kings, empty, RightUp, RightUpOffset);
+	addKingSlideMovesInDirection(moves, kings, empty, RightDown, RightDownOffset);
+	addKingSlideMovesInDirection(moves, kings, empty, LeftUp, LeftUpOffset);
+	addKingSlideMovesInDirection(moves, kings, empty, LeftDown, LeftDownOffset);
+}
+
+void MoveGenerator::addKingSlideMovesInDirection(std::vector<Move>& moves, Bitboard kings, Bitboard empty,
+                                                 Mask directionMask, int offset) {
+	kings &= directionMask;
+
+	for (uint8_t step = 1; kings; ++step) {
+		kings = shift(kings, offset) & empty & directionMask;
+		addLandingsAsMoves(moves, kings, offset * step, QUIET);
+	}
 }
 
 Bitboard MoveGenerator::shift(const Bitboard& b, const int offset) {

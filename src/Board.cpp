@@ -16,6 +16,9 @@ Board::Board()
 			}
 		}
 	}
+	_pieces[WHITE][KING] |= 1ULL << 25;
+	_pieces[WHITE][KING] |= 1ULL << 31;
+	_pieces[BLACK][KING] |= 1ULL << 32;
 
 	// Init the white men on the bottom
 	for (int row = 0; row < 3; row++) {
@@ -41,17 +44,22 @@ const Bitboard& Board::get(Color color, PieceType piece) const {
 
 void Board::applyMove(Color player, Move move) {
 	const auto [src, dest, flag] = Game::decodeMove(move);
+	const PieceType srcPiece = pieceTypeAt(src);
+
 
 	switch (flag) {
 		case QUIET:
-			setBit(_pieces[player][MAN], dest);
-			unsetBit(_pieces[player][MAN], src);
+			setBit(_pieces[player][srcPiece], dest);
+			unsetBit(_pieces[player][srcPiece], src);
 			break;
-		case CAPTURE:
-			setBit(_pieces[player][MAN], dest);
-			unsetBit(_pieces[player][MAN], src);
-			unsetBit(_pieces[getEnemyColor(player)][MAN], getCapturedPosition(src, dest));
+		case CAPTURE: {
+			setBit(_pieces[player][srcPiece], dest);
+			unsetBit(_pieces[player][srcPiece], src);
+			const auto capturedPos = getCapturedPosition(src, dest);
+			const PieceType capturedPiece = pieceTypeAt(capturedPos);
+			unsetBit(_pieces[getEnemyColor(player)][capturedPiece], capturedPos);
 			break;
+		}
 		case PROMOTION:
 			break;
 		case MULTIJUMP:
@@ -89,15 +97,42 @@ int Board::getCapturedPosition(uint8_t src, uint8_t dest) {
 	return (src + dest) / 2;
 }
 
-const char *Board::pieceGlyph(const Board& board, int square, bool isBlackMan, bool isWhiteMan) {
-	const bool isLastDest = board._lastDestPos == square;
-	const bool isLastSrc = board._lastSrcPos == square;
-	const bool isLastCapture = board._lastCapturePos == square;
+Board::PieceKind Board::pieceAt(int square) const {
+	const uint64_t mask = 1ULL << square;
+	if (_pieces[BLACK][MAN] & mask) return PieceKind::BlackMan;
+	if (_pieces[BLACK][KING] & mask) return PieceKind::BlackKing;
+	if (_pieces[WHITE][MAN] & mask) return PieceKind::WhiteMan;
+	if (_pieces[WHITE][KING] & mask) return PieceKind::WhiteKing;
+	return PieceKind::None;
+}
 
-	if (isBlackMan) return isLastDest ? "◉" : "●";
-	if (isWhiteMan) return isLastDest ? "◎" : "○";
-	if (isLastSrc) return ".";
-	if (isLastCapture) return "x";
+Board::PieceType Board::pieceTypeAt(int square) {
+	switch (pieceAt(square)) {
+		case PieceKind::BlackMan:
+		case PieceKind::WhiteMan:
+			return MAN;
+		case PieceKind::BlackKing:
+		case PieceKind::WhiteKing:
+			return KING;
+	}
+
+	throw std::invalid_argument("No piece at given square.");
+}
+
+const char *Board::glyphFor(Board::PieceKind kind, bool isLastDest) {
+	switch (kind) {
+		case Board::PieceKind::BlackMan: return isLastDest ? "◉" : "●";
+		case Board::PieceKind::BlackKing: return isLastDest ? "◈" : "◆";
+		case Board::PieceKind::WhiteMan: return isLastDest ? "◎" : "○";
+		case Board::PieceKind::WhiteKing: return isLastDest ? "◇" : "◇"; // placeholder
+		case Board::PieceKind::None: return nullptr;                     // caller handles empty-square markers
+	}
+	return nullptr; // unreachable, silences -Wreturn-type on some compilers
+}
+
+const char *Board::emptySquareGlyph(const Board& board, int square) {
+	if (board._lastSrcPos == square) return ".";
+	if (board._lastCapturePos == square) return "x";
 	return " ";
 }
 
@@ -110,10 +145,14 @@ std::ostream& operator<<(std::ostream& os, const Board& board) {
 
 		for (int col = 0; col < 8; ++col) {
 			const int sq = Board::square(row, col);
-			const bool isBlackMan = board._pieces[Board::BLACK][Board::MAN] & (1ULL << sq);
-			const bool isWhiteMan = board._pieces[Board::WHITE][Board::MAN] & (1ULL << sq);
+			const auto kind = board.pieceAt(sq);
+			const bool isLastDest = board._lastDestPos == sq;
 
-			os << "| " << Board::pieceGlyph(board, sq, isBlackMan, isWhiteMan) << ' ';
+			const char *glyph = (kind == Board::PieceKind::None)
+				                    ? Board::emptySquareGlyph(board, sq)
+				                    : Board::glyphFor(kind, isLastDest);
+
+			os << "| " << glyph << ' ';
 		}
 		os << "|\n";
 	}

@@ -32,14 +32,18 @@ private:
 
 	static void addLandingsAsMoves(std::vector<unsigned short>& moves, Bitboard landings, int offset, MoveFlag flag);
 
-	static void addQuietMovesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
-	                                     const Mask& directionMask,
-	                                     int offset, const Bitboard& empty);
+	static void addQuietMovesInDirection(std::vector<unsigned short>& moves, Bitboard sources, Mask directionMask,
+	                                     int offset, Bitboard empty);
 
 
-	static void addCapturesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
-	                                   const Mask& directionMask,
-	                                   int offset, const Bitboard& empty, const Bitboard& enemies);
+	static void addCapturesInDirection(std::vector<unsigned short>& moves, Bitboard sources, Mask directionMask,
+	                                   int offset, Bitboard empty, Bitboard enemies);
+
+	static void addKingQuietMoves(std::vector<Move>& moves, Bitboard kings, Bitboard empty);
+
+	static void addKingSlideMovesInDirection(std::vector<Move>& moves, Bitboard kings, Bitboard empty,
+	                                         Mask directionMask,
+	                                         int offset);
 
 	static Bitboard shift(const Bitboard& b, int offset);
 };
