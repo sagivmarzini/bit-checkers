@@ -6,6 +6,7 @@
 
 #include <random>
 
+#include "Game.h"
 #include "MoveGenerator.h"
 
 AiPlayer::AiPlayer()
@@ -14,6 +15,11 @@ AiPlayer::AiPlayer()
 
 Move AiPlayer::getMove(const Board& board) {
 	const auto possibleMoves = MoveGenerator::generateMoves(board, Board::BLACK);
+	for (const auto& move: possibleMoves) {
+		if (Game::decodeMove(move).flag == CAPTURE) {
+			return move;
+		}
+	}
 
 	std::random_device rd;
 	std::mt19937 gen(rd());

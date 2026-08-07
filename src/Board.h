@@ -41,18 +41,33 @@ public:
 
 	Board();
 
+
+	[[nodiscard]] Bitboard getOccupied() const;
+
 	[[nodiscard]] Bitboard getUnoccupied() const;
 
 	[[nodiscard]] const Bitboard& get(Color color, PieceType piece) const;
+
+	[[nodiscard]] Bitboard getColorPieces(Color color) const;
+
 
 	void applyMove(Color player, Move move);
 
 	static void printBitboard(const Bitboard& board);
 
+	void setLastMove(Move lastMove);
+
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
+
+	static constexpr Color getEnemyColor(const Color color);
+
+	static int getCapturedPosition(uint8_t src, uint8_t dest);
 
 private:
 	Bitboard _pieces[COLORS_SIZE][PIECES_SIZE]; // Bitmaps for each piece type and color
+	uint8_t _lastSrcPos = -1;                   // For displaying the last move
+	uint8_t _lastDestPos = -1;
+	uint8_t _lastCapturePos = -1;
 
 	static constexpr int square(int row, int col);
 
@@ -60,6 +75,10 @@ private:
 
 	static constexpr void unsetBit(Bitboard& board, int square);
 };
+
+constexpr Board::Color Board::getEnemyColor(const Color color) {
+	return color == WHITE ? BLACK : WHITE;
+}
 
 constexpr int Board::square(int row, int col) {
 	return row * ROW + col;

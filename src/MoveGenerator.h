@@ -30,11 +30,18 @@ private:
 		LeftDownOffset = -9
 	};
 
+	static void addLandingsAsMoves(std::vector<unsigned short>& moves, Bitboard landings, int offset, MoveFlag flag);
+
 	static void addQuietMovesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
 	                                     const Mask& directionMask,
-	                                     const DiagonalMove& offset, const Bitboard& empty);
+	                                     int offset, const Bitboard& empty);
 
-	static Bitboard shift(const Bitboard& b, const DiagonalMove& offset);
+
+	static void addCapturesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
+	                                   const Mask& directionMask,
+	                                   int offset, const Bitboard& empty, const Bitboard& enemies);
+
+	static Bitboard shift(const Bitboard& b, int offset);
 };
 
 

@@ -24,9 +24,9 @@ void Game::playTurn() {
 bool Game::makeMove(const Move& move) {
 	const auto possibleMoves = MoveGenerator::generateMoves(_board, _currentPlayer->getColor());
 	for (const auto& possibleMove: possibleMoves) {
-		if ((possibleMove & 0xFFF) == move) {
+		if ((possibleMove & 0xFFF) == (move & 0xFFF)) {
 			_board.applyMove(_currentPlayer->getColor(), possibleMove);
-			// _currentPlayer->getColor() = (_currentPlayer->getColor() == Board::WHITE) ? Board::BLACK : Board::WHITE;
+			_board.setLastMove(possibleMove);
 			_currentPlayer = (_currentPlayer == &_human)
 				                 ? static_cast<IPlayer*>(&_computer)
 				                 : static_cast<IPlayer*>(&_human);
