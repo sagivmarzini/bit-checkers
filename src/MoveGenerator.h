@@ -18,13 +18,23 @@ public:
 private:
 	enum Mask : uint64_t {
 		RightUp = 0x7F7F7F7F7F7F7F, // Zeros the right and top columns
-		LeftUp = 0xFEFEFEFEFEFEFE   // left and top
+		LeftUp = 0xFEFEFEFEFEFEFE,  // left and top
+		RightDown = 0x7F7F7F7F7F7F7F00,
+		LeftDown = 0xFEFEFEFEFEFEFE00
 	};
 
 	enum DiagonalMove {
 		RightUpOffset = 9,
-		LeftUpOffset = 7
+		LeftUpOffset = 7,
+		RightDownOffset = -7,
+		LeftDownOffset = -9
 	};
+
+	static void addQuietMovesInDirection(std::vector<unsigned short>& moves, const Bitboard& sources,
+	                                     const Mask& directionMask,
+	                                     const DiagonalMove& offset, const Bitboard& empty);
+
+	static Bitboard shift(const Bitboard& b, const DiagonalMove& offset);
 };
 
 
