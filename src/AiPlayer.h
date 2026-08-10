@@ -26,9 +26,9 @@ private:
 		-50, -26, -10, -2, -2, -10, -26, -50,
 		-78, -50, -34, -26, -26, -34, -50, -78
 	};
-	static constexpr int WIN_SCORE = std::numeric_limits<int>::max();
+	static constexpr int WIN_SCORE = 1'000'000;
 
-	static int negamax(Board& board, int depth, int color);
+	static int negamax(Board& board, int depth, int alpha, int beta, Board::Color playingColor);
 
 	static int evaluate(const Board& board, Board::Color color);
 

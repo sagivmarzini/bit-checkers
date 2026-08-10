@@ -3,9 +3,8 @@
 //
 
 #include "AiPlayer.h"
-
 #include <cassert>
-
+#include <algorithm>
 #include "Game.h"
 #include "MoveGenerator.h"
 
@@ -18,13 +17,19 @@ AiPlayer::AiPlayer(Board::Color color)
 }
 
 Move AiPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) {
-	int bestScore = std::numeric_limits<int>::min();
-	Move bestMove = 0;
+	int bestScore = -WIN_SCORE * 2; // Safely below any possible evaluation
+	Move bestMove = possibleMoves.front();
+
+	const Board::Color enemyColor = Board::getEnemyColor(_color);
+
+	// We start searching at DEPTH - 1 because applying the move here counts as depth 1
+	const int searchDepth = 7;
 
 	for (const auto& move: possibleMoves) {
 		board.applyMove(_color, move);
 
-		const int score = negamax(board, 5, -1);
+		// Negate the result because negamax returns the score from the enemy's perspective
+		const int score = -negamax(board, searchDepth - 1, -WIN_SCORE * 2, WIN_SCORE * 2, enemyColor);
 
 		board.undoMove();
 
@@ -37,30 +42,41 @@ Move AiPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) {
 	return bestMove;
 }
 
-int AiPlayer::negamax(Board& board, int depth, int color) {
-	/*
-	function negamax(node, depth, color) is
-	if depth = 0 or node is a terminal node then
-		return color × the heuristic value of node
-	value := −∞
-	for each child of node do
-		value := max(value, −negamax(child, depth − 1, −color))
-	return value
-	 */
-	const Board::Color playingColor = color == 1 ? Board::Black : Board::White;
-	if (depth == 0) return color * evaluate(board, playingColor);
+int AiPlayer::negamax(Board& board, int depth, int alpha, int beta, Board::Color playingColor) {
+	if (depth == 0) {
+		return evaluate(board, playingColor);
+	}
 
 	const auto possibleMoves = MoveGenerator::generateMoves(board, playingColor);
 
-	if (possibleMoves.empty()) return color * evaluate(board, playingColor);
+	if (possibleMoves.empty()) {
+		// We add 'depth' so the AI prefers winning faster (higher depth remaining)
+		// and losing slower (lower depth remaining).
+		return -WIN_SCORE - depth;
+	}
 
-	int value = std::numeric_limits<int>::min();
+	int value = -WIN_SCORE * 2;
+	const Board::Color nextColor = Board::getEnemyColor(playingColor);
+
 	for (const auto& move: possibleMoves) {
-		auto before = board.getOccupied(); // or a hash
+		auto before = board.getOccupied();
+
 		board.applyMove(playingColor, move);
-		value = std::max(value, -negamax(board, depth - 1, -color));
+
+		// Standard Negamax Alpha-Beta recurrence
+		const int score = -negamax(board, depth - 1, -beta, -alpha, nextColor);
+
 		board.undoMove();
 		assert(board.getOccupied() == before && "undoMove did not restore board state");
+
+		value = std::max(value, score);
+		alpha = std::max(alpha, value);
+
+		// Alpha-Beta Pruning: If we found a move that is too good, the opponent
+		// will avoid this branch entirely. We can stop searching.
+		if (alpha >= beta) {
+			break;
+		}
 	}
 
 	return value;
@@ -76,10 +92,11 @@ int AiPlayer::evaluate(const Board& board, Board::Color color) {
 	if (enemyMoves.empty()) return WIN_SCORE;
 
 	const int material = (board.countPiece(color, Board::Man) - board.countPiece(enemy, Board::Man))
-	                     + (board.countPiece(color, Board::King) - board.countPiece(enemy, Board::King)) * 3;
+	                     + (board.countPiece(color, Board::King) - board.countPiece(enemy, Board::King)) * 10;
 
 	const int advancement = advancementScore(board, color) - advancementScore(board, enemy);
 	const int center = centerScore(board, color) - centerScore(board, enemy);
+
 	const int mobility = static_cast<int>(myMoves.size()) - static_cast<int>(enemyMoves.size());
 
 	return material * 100 + advancement * 3 + center * 2 + mobility * 2;
