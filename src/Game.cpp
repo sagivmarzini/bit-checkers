@@ -41,7 +41,7 @@ constexpr UnpackedMove Game::decodeMove(const Move move) {
 	return {
 		static_cast<uint8_t>(move & 0b0000000000111111),
 		static_cast<uint8_t>((move & 0b0000111111000000) >> 6),
-		static_cast<MoveFlag>((move & 0b1111000000000000) >> 12)
+		static_cast<MoveFlags>((move & 0b1111000000000000) >> 12)
 	};
 }
 
@@ -68,5 +68,5 @@ Move Game::moveStringToBinary(const std::string& move) {
 	const int src = move[0] - 'a' + ((move[1] - '1') * Board::ROW);
 	const int dest = move[2] - 'a' + ((move[3] - '1') * Board::ROW);
 
-	return MoveGenerator::createMove(src, dest, MoveFlag::QUIET);
+	return MoveGenerator::createMove(src, dest, MoveFlags::None);
 }

@@ -12,26 +12,26 @@ Board::Board()
 	for (int row = 5; row < 8; row++) {
 		for (int col = 0; col < ROW; col++) {
 			if ((row + col) % 2 == 0) {
-				setBit(_pieces[BLACK][MAN], row * ROW + col);
+				setBit(_pieces[Black][Man], row * ROW + col);
 			}
 		}
 	}
-	_pieces[WHITE][KING] |= 1ULL << 25;
-	_pieces[WHITE][KING] |= 1ULL << 31;
-	_pieces[BLACK][KING] |= 1ULL << 32;
+	_pieces[White][King] |= 1ULL << 25;
+	_pieces[White][King] |= 1ULL << 31;
+	_pieces[Black][King] |= 1ULL << 32;
 
 	// Init the white men on the bottom
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < ROW; col++) {
 			if ((row + col) % 2 == 0) {
-				setBit(_pieces[WHITE][MAN], row * ROW + col);
+				setBit(_pieces[White][Man], row * ROW + col);
 			}
 		}
 	}
 }
 
 Bitboard Board::getOccupied() const {
-	return _pieces[WHITE][MAN] | _pieces[WHITE][KING] | _pieces[BLACK][MAN] | _pieces[BLACK][KING];
+	return _pieces[White][Man] | _pieces[White][King] | _pieces[Black][Man] | _pieces[Black][King];
 }
 
 Bitboard Board::getUnoccupied() const {
@@ -43,32 +43,38 @@ const Bitboard& Board::get(Color color, PieceType piece) const {
 }
 
 void Board::applyMove(Color player, Move move) {
-	const auto [src, dest, flag] = Game::decodeMove(move);
-	const PieceType srcPiece = pieceTypeAt(src);
+	const auto [src, dest, flags] = Game::decodeMove(move);
 
+	const PieceType piece = pieceTypeAt(src);
 
-	switch (flag) {
-		case QUIET:
-			setBit(_pieces[player][srcPiece], dest);
-			unsetBit(_pieces[player][srcPiece], src);
-			break;
-		case CAPTURE: {
-			setBit(_pieces[player][srcPiece], dest);
-			unsetBit(_pieces[player][srcPiece], src);
-			const auto capturedPos = getCapturedPosition(src, dest);
-			const PieceType capturedPiece = pieceTypeAt(capturedPos);
-			unsetBit(_pieces[getEnemyColor(player)][capturedPiece], capturedPos);
-			break;
-		}
-		case PROMOTION:
-			break;
-		case MULTIJUMP:
-			break;
+	// Move the piece.
+	unsetBit(_pieces[player][piece], src);
+	setBit(_pieces[player][piece], dest);
+
+	// Capture
+	if (flags & Capture) {
+		const auto capturedPos = getCapturedPosition(src, dest);
+		const PieceType capturedPiece = pieceTypeAt(capturedPos);
+
+		unsetBit(
+			_pieces[getEnemyColor(player)][capturedPiece],
+			capturedPos
+		);
+	}
+
+	// Promotion
+	bool onTopRow = dest / ROW == ROW - 1;
+	bool onBottomRow = dest / ROW == 0;
+
+	if (pieceTypeAt(dest) == Man && (player == White && onTopRow ||
+	                                 player == Black && onBottomRow)) {
+		unsetBit(_pieces[player][piece], dest);
+		setBit(_pieces[player][King], dest);
 	}
 }
 
 Bitboard Board::getColorPieces(Color color) const {
-	return _pieces[color][MAN] | _pieces[color][KING];
+	return _pieces[color][Man] | _pieces[color][King];
 }
 
 void Board::printBitboard(const Bitboard& board) {
@@ -89,7 +95,7 @@ void Board::setLastMove(Move lastMove) {
 	const auto move = Game::decodeMove(lastMove);
 	_lastSrcPos = move.src;
 	_lastDestPos = move.dest;
-	_lastCapturePos = move.flag == CAPTURE ? getCapturedPosition(move.src, move.dest) : -1;
+	_lastCapturePos = move.flags & Capture ? getCapturedPosition(move.src, move.dest) : -1;
 }
 
 int Board::getCapturedPosition(int src, int dest) {
@@ -99,10 +105,10 @@ int Board::getCapturedPosition(int src, int dest) {
 
 Board::PieceKind Board::pieceAt(int square) const {
 	const uint64_t mask = 1ULL << square;
-	if (_pieces[BLACK][MAN] & mask) return PieceKind::BlackMan;
-	if (_pieces[BLACK][KING] & mask) return PieceKind::BlackKing;
-	if (_pieces[WHITE][MAN] & mask) return PieceKind::WhiteMan;
-	if (_pieces[WHITE][KING] & mask) return PieceKind::WhiteKing;
+	if (_pieces[Black][Man] & mask) return PieceKind::BlackMan;
+	if (_pieces[Black][King] & mask) return PieceKind::BlackKing;
+	if (_pieces[White][Man] & mask) return PieceKind::WhiteMan;
+	if (_pieces[White][King] & mask) return PieceKind::WhiteKing;
 	return PieceKind::None;
 }
 
@@ -110,10 +116,10 @@ Board::PieceType Board::pieceTypeAt(int square) {
 	switch (pieceAt(square)) {
 		case PieceKind::BlackMan:
 		case PieceKind::WhiteMan:
-			return MAN;
+			return Man;
 		case PieceKind::BlackKing:
 		case PieceKind::WhiteKing:
-			return KING;
+			return King;
 	}
 
 	throw std::invalid_argument("No piece at given square.");

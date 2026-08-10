@@ -10,30 +10,30 @@
 using Bitboard = uint64_t;
 using Move = uint16_t;
 
-enum MoveFlag : uint8_t {
-	QUIET,
-	CAPTURE,
-	PROMOTION,
-	MULTIJUMP
+enum MoveFlags : uint8_t {
+	None = 0b0000,
+	Capture = 0b0001,
+	// Promotion = 0b0010,
+	Multijump = 0b0100,
 };
 
 struct UnpackedMove {
 	uint8_t src;
 	uint8_t dest;
-	MoveFlag flag;
+	MoveFlags flags;
 };
 
 class Board {
 public:
 	enum Color {
-		WHITE,
-		BLACK,
+		White,
+		Black,
 		COLORS_SIZE
 	};
 
 	enum PieceType {
-		MAN,
-		KING,
+		Man,
+		King,
 		PIECES_SIZE
 	};
 
@@ -42,6 +42,13 @@ public:
 		LeftUpOffset = 7,
 		RightDownOffset = -7,
 		LeftDownOffset = -9
+	};
+
+	enum Mask : uint64_t {
+		MaskRightUp = 0x7F7F7F7F7F7F7F, // Zeros the right and top columns
+		MaskLeftUp = 0xFEFEFEFEFEFEFE,  // left and top
+		MaskRightDown = 0x7F7F7F7F7F7F7F00,
+		MaskLeftDown = 0xFEFEFEFEFEFEFE00
 	};
 
 	static constexpr int ROW = 8;
@@ -96,7 +103,7 @@ private:
 };
 
 constexpr Board::Color Board::getEnemyColor(const Color color) {
-	return color == WHITE ? BLACK : WHITE;
+	return color == White ? Black : White;
 }
 
 constexpr int Board::square(int row, int col) {

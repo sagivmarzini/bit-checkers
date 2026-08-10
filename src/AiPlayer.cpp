@@ -10,16 +10,23 @@
 #include "MoveGenerator.h"
 
 AiPlayer::AiPlayer()
-	: IPlayer(Board::BLACK) {
+	: IPlayer(Board::Black) {
 }
 
 Move AiPlayer::getMove(const Board& board) {
-	const auto possibleMoves = MoveGenerator::generateMoves(board, Board::BLACK);
+	const auto possibleMoves = MoveGenerator::generateMoves(board, Board::Black);
+
+	int lowestRow = Board::ROW;
+	Move farthestMove;
 	for (const auto& move: possibleMoves) {
-		if (Game::decodeMove(move).flag == CAPTURE) {
-			return move;
+		const auto [src, dest, flags] = Game::decodeMove(move);
+		const int currentRow = dest / Board::ROW;
+		if (currentRow < lowestRow && dest < src) {
+			lowestRow = currentRow;
+			farthestMove = move;
 		}
 	}
+	return farthestMove;
 
 	std::random_device rd;
 	std::mt19937 gen(rd());

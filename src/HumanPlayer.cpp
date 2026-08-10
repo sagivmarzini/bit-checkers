@@ -8,7 +8,7 @@
 #include "InvalidMove.h"
 
 HumanPlayer::HumanPlayer()
-	: IPlayer(Board::WHITE) {
+	: IPlayer(Board::White) {
 }
 
 Move HumanPlayer::getMove(const Board& board) {
