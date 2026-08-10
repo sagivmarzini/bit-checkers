@@ -11,7 +11,7 @@ class HumanPlayer : public IPlayer {
 public:
 	HumanPlayer();
 
-	Move getMove(const Board& board) override;
+	Move getMove(const Board& board, const std::vector<Move>& possibleMoves) override;
 };
 
 

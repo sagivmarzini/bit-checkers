@@ -8,28 +8,44 @@
 #include "MoveGenerator.h"
 
 Game::Game()
-	: _currentPlayer(&_human) {
+	: _currentPlayer(&_human), _winner() {
 }
 
 void Game::playTurn() {
-	std::cout << _board << "\n";
+	const auto color = _currentPlayer->getColor();
 
-	Move move = _currentPlayer->getMove(_board);
-	while (!makeMove(move)) {
+	std::cout << _board << '\n';
+
+	const auto possibleMoves =
+			MoveGenerator::generateMoves(_board, color);
+
+	if (possibleMoves.empty()) {
+		_gameOver = true;
+		_winner = Board::getEnemyColor(color);
+		return;
+	}
+
+	Move move = _currentPlayer->getMove(_board, possibleMoves);
+
+	while (!validateAndApplyMove(move, possibleMoves)) {
 		std::cout << "Illegal move. Try again.\n";
-		move = _currentPlayer->getMove(_board);
+		move = _currentPlayer->getMove(_board, possibleMoves);
 	}
 }
 
-bool Game::makeMove(const Move& move) {
-	const auto possibleMoves = MoveGenerator::generateMoves(_board, _currentPlayer->getColor());
-	for (const auto& possibleMove: possibleMoves) {
+bool Game::validateAndApplyMove(
+	const Move& move,
+	const std::vector<Move>& possibleMoves
+) {
+	for (const auto possibleMove: possibleMoves) {
 		if ((possibleMove & 0xFFF) == (move & 0xFFF)) {
 			_board.applyMove(_currentPlayer->getColor(), possibleMove);
 			_board.setLastMove(possibleMove);
+
 			_currentPlayer = (_currentPlayer == &_human)
 				                 ? static_cast<IPlayer*>(&_computer)
 				                 : static_cast<IPlayer*>(&_human);
+
 			return true;
 		}
 	}
@@ -69,4 +85,14 @@ Move Game::moveStringToBinary(const std::string& move) {
 	const int dest = move[2] - 'a' + ((move[3] - '1') * Board::ROW);
 
 	return MoveGenerator::createMove(src, dest, MoveFlags::None);
+}
+
+bool Game::isGameOver() const {
+	return _gameOver;
+}
+
+Board::Color Game::getWinner() const {
+	if (!_gameOver) throw std::runtime_error("No winners yet. Game is not over.");
+
+	return _winner;
 }

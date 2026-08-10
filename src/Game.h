@@ -17,19 +17,26 @@ public:
 
 	void playTurn();
 
+
 	static void validateMoveString(const std::string& move);
 
-	bool makeMove(const Move& move);
+	bool validateAndApplyMove(const Move& move, const std::vector<Move>& possibleMoves);
 
 	static constexpr UnpackedMove decodeMove(Move move);
 
 	static Move moveStringToBinary(const std::string& move);
+
+	bool isGameOver() const;
+
+	Board::Color getWinner() const;
 
 private:
 	Board _board;
 	HumanPlayer _human;
 	AiPlayer _computer;
 	IPlayer *_currentPlayer;
+	bool _gameOver = false;
+	Board::Color _winner;
 
 	static std::string binaryMoveToString(const Move& move);
 };

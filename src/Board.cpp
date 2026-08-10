@@ -16,9 +16,6 @@ Board::Board()
 			}
 		}
 	}
-	_pieces[White][King] |= 1ULL << 25;
-	_pieces[White][King] |= 1ULL << 31;
-	_pieces[Black][King] |= 1ULL << 32;
 
 	// Init the white men on the bottom
 	for (int row = 0; row < 3; row++) {

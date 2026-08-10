@@ -7,17 +7,18 @@
 #include <random>
 
 #include "Game.h"
-#include "MoveGenerator.h"
 
 AiPlayer::AiPlayer()
 	: IPlayer(Board::Black) {
 }
 
-Move AiPlayer::getMove(const Board& board) {
-	const auto possibleMoves = MoveGenerator::generateMoves(board, Board::Black);
+AiPlayer::AiPlayer(Board::Color color)
+	: IPlayer(color) {
+}
 
+Move AiPlayer::getMove(const Board& board, const std::vector<Move>& possibleMoves) {
 	int lowestRow = Board::ROW;
-	Move farthestMove;
+	Move farthestMove = possibleMoves[0];
 	for (const auto& move: possibleMoves) {
 		const auto [src, dest, flags] = Game::decodeMove(move);
 		const int currentRow = dest / Board::ROW;
@@ -27,12 +28,4 @@ Move AiPlayer::getMove(const Board& board) {
 		}
 	}
 	return farthestMove;
-
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> distr(0, possibleMoves.size() - 1);
-
-	int random_index = distr(gen);
-
-	return possibleMoves[random_index];
 }

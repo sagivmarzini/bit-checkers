@@ -11,7 +11,9 @@ class AiPlayer : public IPlayer {
 public:
 	AiPlayer();
 
-	Move getMove(const Board& board) override;
+	explicit AiPlayer(Board::Color color);
+
+	Move getMove(const Board& board, const std::vector<Move>& possibleMoves) override;
 };
 
 
