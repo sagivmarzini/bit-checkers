@@ -92,9 +92,9 @@ void Board::setLastMove(Move lastMove) {
 	_lastCapturePos = move.flag == CAPTURE ? getCapturedPosition(move.src, move.dest) : -1;
 }
 
-int Board::getCapturedPosition(uint8_t src, uint8_t dest) {
-	// For now just a man piece capturing
-	return (src + dest) / 2;
+int Board::getCapturedPosition(int src, int dest) {
+	int diagonalOffset = calculateDiagonalOffset(src, dest); // one of the 4 fixed offsets
+	return dest - diagonalOffset;
 }
 
 Board::PieceKind Board::pieceAt(int square) const {
@@ -134,6 +134,22 @@ const char *Board::emptySquareGlyph(const Board& board, int square) {
 	if (board._lastSrcPos == square) return ".";
 	if (board._lastCapturePos == square) return "x";
 	return " ";
+}
+
+Board::DiagonalMove Board::calculateDiagonalOffset(int src, int dest) {
+	const int srcFile = src % 8, srcRank = src / 8;
+	const int destFile = dest % 8, destRank = dest / 8;
+
+	const int fileStep = destFile - srcFile;
+	const int rankStep = destRank - srcRank;
+
+	if (fileStep == 0 || rankStep == 0 || std::abs(fileStep) != std::abs(rankStep))
+		throw std::runtime_error("Source and destination are not on a diagonal");
+
+	if (fileStep > 0 && rankStep > 0) return RightUpOffset;
+	if (fileStep < 0 && rankStep > 0) return LeftUpOffset;
+	if (fileStep > 0 && rankStep < 0) return RightDownOffset;
+	return LeftDownOffset; // fileStep < 0 && rankStep < 0
 }
 
 

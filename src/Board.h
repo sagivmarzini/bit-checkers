@@ -37,6 +37,13 @@ public:
 		PIECES_SIZE
 	};
 
+	enum DiagonalMove {
+		RightUpOffset = 9,
+		LeftUpOffset = 7,
+		RightDownOffset = -7,
+		LeftDownOffset = -9
+	};
+
 	static constexpr int ROW = 8;
 
 	Board();
@@ -61,8 +68,6 @@ public:
 
 	static constexpr Color getEnemyColor(Color color);
 
-	static int getCapturedPosition(uint8_t src, uint8_t dest);
-
 private:
 	Bitboard _pieces[COLORS_SIZE][PIECES_SIZE]; // Bitmaps for each piece type and color
 	uint8_t _lastSrcPos = -1;                   // For displaying the last move
@@ -84,6 +89,10 @@ private:
 	static const char *glyphFor(Board::PieceKind kind, bool isLastDest);
 
 	static const char *emptySquareGlyph(const Board& board, int square);
+
+	static DiagonalMove calculateDiagonalOffset(int src, int dest);
+
+	static int getCapturedPosition(int src, int dest);
 };
 
 constexpr Board::Color Board::getEnemyColor(const Color color) {

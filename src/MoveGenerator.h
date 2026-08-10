@@ -5,6 +5,7 @@
 #ifndef BIT_CHECKERS_MOVEGENERATOR_H
 #define BIT_CHECKERS_MOVEGENERATOR_H
 #include <vector>
+
 #include "Board.h"
 
 
@@ -23,12 +24,6 @@ private:
 		LeftDown = 0xFEFEFEFEFEFEFE00
 	};
 
-	enum DiagonalMove {
-		RightUpOffset = 9,
-		LeftUpOffset = 7,
-		RightDownOffset = -7,
-		LeftDownOffset = -9
-	};
 
 	static void addLandingsAsMoves(std::vector<unsigned short>& moves, Bitboard landings, int offset, MoveFlag flag);
 
@@ -41,9 +36,16 @@ private:
 
 	static void addKingQuietMoves(std::vector<Move>& moves, Bitboard kings, Bitboard empty);
 
+	static void addKingCaptures(std::vector<unsigned short>& moves, Bitboard kings, Bitboard empty, Bitboard enemies);
+
 	static void addKingSlideMovesInDirection(std::vector<Move>& moves, Bitboard kings, Bitboard empty,
 	                                         Mask directionMask,
 	                                         int offset);
+
+	static void addKingCapturesInDirection(std::vector<Move>& moves, Bitboard kings, Bitboard empty, Bitboard enemies,
+	                                       Mask directionMask,
+	                                       int offset);
+
 
 	static Bitboard shift(const Bitboard& b, int offset);
 };
