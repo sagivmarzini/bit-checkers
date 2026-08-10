@@ -60,12 +60,16 @@ public:
 
 	[[nodiscard]] Bitboard getUnoccupied() const;
 
-	[[nodiscard]] const Bitboard& get(Color color, PieceType piece) const;
+	[[nodiscard]] const Bitboard& getPieceBitboard(Color color, PieceType piece) const;
 
 	[[nodiscard]] Bitboard getColorPieces(Color color) const;
 
+	[[nodiscard]] int countPiece(Color color, PieceType piece) const;
 
 	void applyMove(Color player, Move move);
+
+	void undoMove();
+
 
 	static void printBitboard(const Bitboard& board);
 
@@ -76,10 +80,12 @@ public:
 	static constexpr Color getEnemyColor(Color color);
 
 private:
-	Bitboard _pieces[COLORS_SIZE][PIECES_SIZE]; // Bitmaps for each piece type and color
-	uint8_t _lastSrcPos = -1;                   // For displaying the last move
+	std::array<std::array<Bitboard, PIECES_SIZE>, COLORS_SIZE> _pieces;
+	std::vector<std::array<std::array<Bitboard, PIECES_SIZE>, COLORS_SIZE> > _history;
+	uint8_t _lastSrcPos = -1; // For displaying the last move
 	uint8_t _lastDestPos = -1;
 	uint8_t _lastCapturePos = -1;
+
 
 	enum class PieceKind { None, BlackMan, BlackKing, WhiteMan, WhiteKing };
 

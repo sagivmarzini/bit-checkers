@@ -8,8 +8,8 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, Board::Color 
 	std::vector<Move> moves;
 	const Bitboard empty = board.getUnoccupied();
 	const Bitboard enemies = board.getColorPieces(Board::getEnemyColor(color));
-	const Bitboard men = board.get(color, Board::Man);
-	const Bitboard kings = board.get(color, Board::King);
+	const Bitboard men = board.getPieceBitboard(color, Board::Man);
+	const Bitboard kings = board.getPieceBitboard(color, Board::King);
 
 	switch (color) {
 		case Board::White:

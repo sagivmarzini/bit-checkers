@@ -11,7 +11,7 @@ HumanPlayer::HumanPlayer()
 	: IPlayer(Board::White) {
 }
 
-Move HumanPlayer::getMove(const Board& board, const std::vector<Move>& possibleMoves) {
+Move HumanPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) {
 	std::string moveStr;
 
 	while (true) {

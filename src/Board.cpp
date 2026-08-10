@@ -35,43 +35,45 @@ Bitboard Board::getUnoccupied() const {
 	return ~getOccupied();
 }
 
-const Bitboard& Board::get(Color color, PieceType piece) const {
+const Bitboard& Board::getPieceBitboard(Color color, PieceType piece) const {
 	return _pieces[color][piece];
 }
 
 void Board::applyMove(Color player, Move move) {
-	const auto [src, dest, flags] = Game::decodeMove(move);
+	_history.push_back(_pieces);
 
+	const auto [src, dest, flags] = Game::decodeMove(move);
 	const PieceType piece = pieceTypeAt(src);
 
-	// Move the piece.
 	unsetBit(_pieces[player][piece], src);
 	setBit(_pieces[player][piece], dest);
 
-	// Capture
 	if (flags & Capture) {
 		const auto capturedPos = getCapturedPosition(src, dest);
 		const PieceType capturedPiece = pieceTypeAt(capturedPos);
-
-		unsetBit(
-			_pieces[getEnemyColor(player)][capturedPiece],
-			capturedPos
-		);
+		unsetBit(_pieces[getEnemyColor(player)][capturedPiece], capturedPos);
 	}
 
-	// Promotion
 	bool onTopRow = dest / ROW == ROW - 1;
 	bool onBottomRow = dest / ROW == 0;
-
-	if (pieceTypeAt(dest) == Man && (player == White && onTopRow ||
-	                                 player == Black && onBottomRow)) {
+	if (pieceTypeAt(dest) == Man && ((player == White && onTopRow) ||
+	                                 (player == Black && onBottomRow))) {
 		unsetBit(_pieces[player][piece], dest);
 		setBit(_pieces[player][King], dest);
 	}
 }
 
+void Board::undoMove() {
+	_pieces = _history.back();
+	_history.pop_back();
+}
+
 Bitboard Board::getColorPieces(Color color) const {
 	return _pieces[color][Man] | _pieces[color][King];
+}
+
+int Board::countPiece(Color color, PieceType piece) const {
+	return std::popcount(_pieces[color][piece]);
 }
 
 void Board::printBitboard(const Bitboard& board) {
