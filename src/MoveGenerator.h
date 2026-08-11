@@ -14,7 +14,7 @@ public:
 	static std::vector<Move> generateMoves(const Board& board, Board::Color color);
 
 	// Forms a 16-bit move representation <flag (4 bits)><dest (6 bits)><src (6 bits)>
-	static Move createMove(int src, int dest, MoveFlags flags);
+	static Move encodeMove(int src, int dest, MoveFlags flags);
 
 private:
 	static void addLandingsAsMoves(std::vector<unsigned short>& moves, Bitboard landings, int offset, MoveFlags flags);

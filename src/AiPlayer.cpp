@@ -16,7 +16,7 @@ AiPlayer::AiPlayer(Board::Color color)
 	: IPlayer(color) {
 }
 
-Move AiPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) {
+Move AiPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) const {
 	int bestScore = -WIN_SCORE * 2; // Safely below any possible evaluation
 	Move bestMove = possibleMoves.front();
 

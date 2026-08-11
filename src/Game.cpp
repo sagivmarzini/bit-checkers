@@ -5,10 +5,11 @@
 #include "Game.h"
 
 #include "InvalidMove.h"
+#include "IPlayer.h"
 #include "MoveGenerator.h"
 
-Game::Game()
-	: _currentPlayer(&_human), _winner() {
+Game::Game(const IPlayer *player1, const IPlayer *player2)
+	: _player1(player1), _player2(player2), _currentPlayer(player1), _winner() {
 }
 
 void Game::playTurn() {
@@ -42,15 +43,19 @@ bool Game::validateAndApplyMove(
 			_board.applyMove(_currentPlayer->getColor(), possibleMove);
 			_board.setLastMove(possibleMove);
 
-			_currentPlayer = (_currentPlayer == &_human)
-				                 ? static_cast<IPlayer*>(&_computer)
-				                 : static_cast<IPlayer*>(&_human);
+			_currentPlayer = (_currentPlayer == _player1)
+				                 ? _player2
+				                 : _player1;
 
 			return true;
 		}
 	}
 
 	return false;
+}
+
+constexpr Move Game::encodeMove(UnpackedMove move) {
+	return (move.flags << 12) | (move.dest << 6) | move.src;
 }
 
 constexpr UnpackedMove Game::decodeMove(const Move move) {
@@ -84,7 +89,7 @@ Move Game::moveStringToBinary(const std::string& move) {
 	const int src = move[0] - 'a' + ((move[1] - '1') * Board::ROW);
 	const int dest = move[2] - 'a' + ((move[3] - '1') * Board::ROW);
 
-	return MoveGenerator::createMove(src, dest, MoveFlags::None);
+	return MoveGenerator::encodeMove(src, dest, MoveFlags::None);
 }
 
 bool Game::isGameOver() const {

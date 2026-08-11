@@ -20,7 +20,7 @@ void Renderer::processEvents() {
 void Renderer::draw(const Board& board) {
 	_window.clear(sf::Color::Black);
 
-	drawCheckersBoard();
+	drawCheckersBoard({});
 	drawPieces(board);
 
 	_window.display();
@@ -30,9 +30,20 @@ bool Renderer::isOpen() const {
 	return _window.isOpen();
 }
 
-void Renderer::drawCheckersBoard() {
+UnpackedMove Renderer::getMoveInput(const std::vector<Move>& possibleMoves) {
+	while (true) {
+		sf::Vector2i mousePos = sf::Mouse::getPosition(_window);
+		const auto hoveredPos = pixelToSquare(mousePos);
+
+		drawCheckersBoard(hoveredPos);
+	}
+}
+
+void Renderer::drawCheckersBoard(std::optional<int> hoveredSquare) {
 	for (int row = 0; row < Board::ROW; ++row) {
 		for (int col = 0; col < Board::ROW; ++col) {
+			int hoveredBonus = hoveredSquare.has_value() && hoveredSquare.value() / 8 == row ? 100 : 0;
+
 			sf::RectangleShape square;
 
 			square.setSize({_cellSize, _cellSize});
@@ -43,7 +54,7 @@ void Renderer::drawCheckersBoard() {
 			});
 
 			if ((row + col) % 2 == 0)
-				square.setFillColor(sf::Color(240, 217, 181));
+				square.setFillColor(sf::Color(240 + hoveredBonus, 217, 181));
 			else
 				square.setFillColor(sf::Color(181, 136, 99));
 
@@ -95,4 +106,16 @@ void Renderer::drawPieces(const Board& board) {
 			}
 		}
 	}
+}
+
+std::optional<int> Renderer::pixelToSquare(sf::Vector2i pixel) const {
+	int col = pixel.x / static_cast<int>(_cellSize);
+	int row = pixel.y / static_cast<int>(_cellSize);
+	if (col < 0 || col >= Board::ROW || row < 0 || row >= Board::ROW)
+		return std::nullopt;
+
+	// Flipping rows for display
+	// Here too so it maps back to board coords correctly
+	int boardRow = Board::ROW - 1 - row;
+	return boardRow * Board::ROW + col;
 }

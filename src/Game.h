@@ -4,16 +4,14 @@
 
 #ifndef BIT_CHECKERS_GAME_H
 #define BIT_CHECKERS_GAME_H
-#include "AiPlayer.h"
 #include "Board.h"
-#include "HumanPlayer.h"
 
 
 class IPlayer;
 
 class Game {
 public:
-	Game();
+	Game(const IPlayer *player1, const IPlayer *player2);
 
 	void playTurn();
 
@@ -21,6 +19,8 @@ public:
 	static void validateMoveString(const std::string& move);
 
 	bool validateAndApplyMove(const Move& move, const std::vector<Move>& possibleMoves);
+
+	static constexpr Move encodeMove(UnpackedMove move);
 
 	static constexpr UnpackedMove decodeMove(Move move);
 
@@ -34,9 +34,9 @@ public:
 
 private:
 	Board _board;
-	HumanPlayer _human;
-	AiPlayer _computer;
-	IPlayer *_currentPlayer;
+	const IPlayer *_player1;
+	const IPlayer *_player2;
+	const IPlayer *_currentPlayer;
 	bool _gameOver = false;
 	Board::Color _winner;
 

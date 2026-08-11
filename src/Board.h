@@ -83,7 +83,7 @@ public:
 
 	[[nodiscard]] PieceKind pieceAt(int square) const;
 
-	PieceType pieceTypeAt(int square);
+	PieceType pieceTypeAt(int square) const;
 
 	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 

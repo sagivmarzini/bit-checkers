@@ -14,7 +14,7 @@ public:
 
 	virtual ~IPlayer() = default;
 
-	virtual Move getMove(Board& board, const std::vector<Move>& possibleMoves) = 0;
+	virtual Move getMove(Board& board, const std::vector<Move>& possibleMoves) const = 0;
 
 	[[nodiscard]] Board::Color getColor() const {
 		return _color;

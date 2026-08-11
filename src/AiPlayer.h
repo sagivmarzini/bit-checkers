@@ -13,7 +13,7 @@ public:
 
 	explicit AiPlayer(Board::Color color);
 
-	Move getMove(Board& board, const std::vector<Move>& possibleMoves) override;
+	Move getMove(Board& board, const std::vector<Move>& possibleMoves) const override;
 
 private:
 	static constexpr int CENTER_SCORE[Board::ROW * Board::ROW] = {

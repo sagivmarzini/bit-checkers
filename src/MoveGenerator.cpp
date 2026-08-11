@@ -32,17 +32,13 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, Board::Color 
 	return moves;
 }
 
-Move MoveGenerator::createMove(int src, int dest, MoveFlags flags) {
-	return (flags << 12) | (dest << 6) | src;
-}
-
 void MoveGenerator::addLandingsAsMoves(std::vector<Move>& moves, Bitboard landings, int offset,
                                        MoveFlags flags) {
 	while (landings) {
 		int dest = std::countr_zero(landings);
 		int src = dest - offset;
 
-		moves.push_back(createMove(src, dest, flags));
+		moves.push_back(encodeMove(src, dest, flags));
 		landings &= landings - 1;
 	}
 }

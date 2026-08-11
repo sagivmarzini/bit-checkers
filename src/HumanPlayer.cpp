@@ -4,14 +4,20 @@
 
 #include "HumanPlayer.h"
 
-#include "Game.h"
 #include "InvalidMove.h"
+#include "Renderer.h"
+#include "Board.h"
 
-HumanPlayer::HumanPlayer()
-	: IPlayer(Board::White) {
+
+HumanPlayer::HumanPlayer(Renderer& renderer)
+	: IPlayer(Board::White), _renderer(renderer) {
 }
 
-Move HumanPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) {
+Move HumanPlayer::getMove(Board& board, const std::vector<Move>& possibleMoves) const {
+	return Game::encodeMove(_renderer.getMoveInput(possibleMoves));
+}
+
+Move HumanPlayer::getMoveInputCli() {
 	std::string moveStr;
 
 	while (true) {

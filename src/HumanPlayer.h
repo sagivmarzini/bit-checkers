@@ -7,11 +7,19 @@
 #include "IPlayer.h"
 
 
+class Renderer;
+
 class HumanPlayer : public IPlayer {
 public:
-	HumanPlayer();
+	HumanPlayer(Renderer& renderer);
 
-	Move getMove(Board& board, const std::vector<Move>& possibleMoves) override;
+
+	Move getMove(Board& board, const std::vector<Move>& possibleMoves) const override;
+
+private:
+	Renderer& _renderer;
+
+	static Move getMoveInputCli();
 };
 
 

@@ -22,7 +22,7 @@ public:
 
 	bool isOpen() const;
 
-	// UnpackedMove getMove();
+	UnpackedMove getMoveInput(const std::vector<Move>& possibleMoves);
 
 private:
 	sf::RenderWindow _window;
@@ -32,9 +32,11 @@ private:
 	sf::Color BLACK = sf::Color::Black;
 	sf::Color WHITE = sf::Color::White;
 
-	void drawCheckersBoard();
+	void drawCheckersBoard(std::optional<int> hoveredSquare = {});
 
 	void drawPieces(const Board& board);
+
+	std::optional<int> pixelToSquare(sf::Vector2i pixel) const;
 };
 
 

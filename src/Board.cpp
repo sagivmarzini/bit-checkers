@@ -81,7 +81,7 @@ void Board::printBitboard(const Bitboard& board) {
 		std::cout << "  +---+---+---+---+---+---+---+---+\n";
 		std::cout << row + 1 << " ";
 		for (int col = 0; col < 8; col++) {
-			bool exists = board & (1ULL << Board::square(row, col));
+			bool exists = board & (1ULL << square(row, col));
 			std::cout << "| " << (exists ? "1 " : "  ");
 		}
 		std::cout << "|\n";
@@ -111,7 +111,7 @@ Board::PieceKind Board::pieceAt(int square) const {
 	return PieceKind::None;
 }
 
-Board::PieceType Board::pieceTypeAt(int square) {
+Board::PieceType Board::pieceTypeAt(int square) const {
 	switch (pieceAt(square)) {
 		case PieceKind::BlackMan:
 		case PieceKind::WhiteMan:
