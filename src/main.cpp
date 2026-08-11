@@ -3,6 +3,7 @@
 //
 
 #include "Game.h"
+#include "Renderer.h"
 
 constexpr const char *WELCOME = R"( ______ __ __        ______ __                __
 |   __ \__|  |_     |      |  |--.-----.----.|  |--.-----.----.-----.
@@ -14,15 +15,23 @@ constexpr const char *GAME_OVER = R"(▄▖         ▄▖
 ▙▌█▌▌▌▌▙▖  ▙▌▚▘▙▖▌
                    )";
 
+#include <SFML/Graphics.hpp>
+
+
 int main() {
 	Game game;
+	Renderer renderer(800, 800, "Bit Checkers");
 
 	std::cout << WELCOME << '\n';
-	while (!game.isGameOver()) {
+
+	while (renderer.isOpen() && !game.isGameOver()) {
+		renderer.processEvents();
+
+		renderer.draw(game.getBoard());
 		game.playTurn();
 	}
 
-	std::cout << GAME_OVER << '\n' << (game.getWinner() == Board::White ? "White" : "Black") << " won!" << '\n';
-
-	return 0;
+	std::cout << GAME_OVER << '\n'
+			<< (game.getWinner() == Board::White ? "White" : "Black")
+			<< " won!\n";
 }

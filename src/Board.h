@@ -5,6 +5,7 @@
 #ifndef BIT_CHECKERS_BOARD_H
 #define BIT_CHECKERS_BOARD_H
 #include <iostream>
+#include <vector>
 
 
 using Bitboard = uint64_t;
@@ -36,6 +37,8 @@ public:
 		King,
 		PIECES_SIZE
 	};
+
+	enum class PieceKind { None, BlackMan, BlackKing, WhiteMan, WhiteKing };
 
 	enum DiagonalMove {
 		RightUpOffset = 9,
@@ -75,9 +78,14 @@ public:
 
 	void setLastMove(Move lastMove);
 
-	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 
 	static constexpr Color getEnemyColor(Color color);
+
+	[[nodiscard]] PieceKind pieceAt(int square) const;
+
+	PieceType pieceTypeAt(int square);
+
+	friend std::ostream& operator<<(std::ostream& os, const Board& board);
 
 private:
 	std::array<std::array<Bitboard, PIECES_SIZE>, COLORS_SIZE> _pieces;
@@ -87,17 +95,12 @@ private:
 	uint8_t _lastCapturePos = -1;
 
 
-	enum class PieceKind { None, BlackMan, BlackKing, WhiteMan, WhiteKing };
-
 	static constexpr int square(int row, int col);
 
 	static constexpr void setBit(Bitboard& board, int square);
 
 	static constexpr void unsetBit(Bitboard& board, int square);
 
-	[[nodiscard]] PieceKind pieceAt(int square) const;
-
-	PieceType pieceTypeAt(int square);
 
 	static const char *glyphFor(Board::PieceKind kind, bool isLastDest);
 

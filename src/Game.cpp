@@ -96,3 +96,7 @@ Board::Color Game::getWinner() const {
 
 	return _winner;
 }
+
+const Board& Game::getBoard() {
+	return _board;
+}

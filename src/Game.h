@@ -26,9 +26,11 @@ public:
 
 	static Move moveStringToBinary(const std::string& move);
 
-	bool isGameOver() const;
+	[[nodiscard]] bool isGameOver() const;
 
-	Board::Color getWinner() const;
+	[[nodiscard]] Board::Color getWinner() const;
+
+	[[nodiscard]] const Board& getBoard();
 
 private:
 	Board _board;
