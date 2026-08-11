@@ -4,6 +4,8 @@
 
 #include "MoveGenerator.h"
 
+#include "Game.h"
+
 std::vector<Move> MoveGenerator::generateMoves(const Board& board, Board::Color color) {
 	std::vector<Move> moves;
 	const Bitboard empty = board.getUnoccupied();
@@ -35,10 +37,10 @@ std::vector<Move> MoveGenerator::generateMoves(const Board& board, Board::Color 
 void MoveGenerator::addLandingsAsMoves(std::vector<Move>& moves, Bitboard landings, int offset,
                                        MoveFlags flags) {
 	while (landings) {
-		int dest = std::countr_zero(landings);
-		int src = dest - offset;
+		uint8_t dest = std::countr_zero(landings);
+		uint8_t src = dest - offset;
 
-		moves.push_back(encodeMove(src, dest, flags));
+		moves.push_back(Game::encodeMove({src, dest, flags}));
 		landings &= landings - 1;
 	}
 }

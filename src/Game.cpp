@@ -86,10 +86,10 @@ std::string Game::binaryMoveToString(const Move& move) {
 }
 
 Move Game::moveStringToBinary(const std::string& move) {
-	const int src = move[0] - 'a' + ((move[1] - '1') * Board::ROW);
-	const int dest = move[2] - 'a' + ((move[3] - '1') * Board::ROW);
+	uint8_t src = move[0] - 'a' + ((move[1] - '1') * Board::ROW);
+	uint8_t dest = move[2] - 'a' + ((move[3] - '1') * Board::ROW);
 
-	return MoveGenerator::encodeMove(src, dest, MoveFlags::None);
+	return encodeMove({src, dest, MoveFlags::None});
 }
 
 bool Game::isGameOver() const {
